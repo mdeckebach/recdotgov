@@ -1,26 +1,44 @@
-# Goal
-Build something that can systematically pull overnight backcountry permit data (starting w/ just Inyo National Forest, as that's what I care most about) from Recreation.gov. Take that data and create a database so I can track how permits are bought up and released over time. I might also be able to use the script to automate alerts whenever a desireable permit becomes available.
+# Data Engineering Project Template
 
-In the process, I wanted to learn:
-- How to pull data from the web, ideally via API and not via webscraping
-- How to set up some sort of personal database that I could write to
-- How to write data to a database via script
-- How to host and schedule the job on a recurring basis via my NAS
-- Python
+This is a template you can use for your next data engineering portfolio project. To copy it, log into GitHub and click on the **Use this template** button above.
 
-# Discovery
-I started by looking for a publicly available API. I found RIDB API (https://ridb.recreation.gov/docs), which at first I thought would be super promising. However, the /reservations endpoint appears to no longer be functioning, and it appears to contain the necessary information.
+![GitHub use this template button](use-this-template-button.png)
 
-I did a bit of poking around the Inyo Backcountry Permit page itself, wondering if maybe I would find any calls that might contain the data I need. Somehow, availability is getting to the webpage! I got the idea from this article, which was doing something similar with campsite avilability: https://emery-44439.medium.com/how-find-openings-in-rec-gov-campsites-using-dart-and-aws-lambda-9bfe3fe29369.
+## Overview
 
-Inspecting the webpage (https://www.recreation.gov/permits/233262/registration/detailed-availability?date=2024-09-18&type=overnight-permit) with Developer Tools, I combed through the network traffic and found two promising API calls:
+Here you want to write a short overview of the goals of your project and how it works at a high level. If possible, include one or two images of the end product and architecture diagram (see examples below). diagrams.net is a great tool for creating architecture diagrams.
 
-1. https://www.recreation.gov/api/permitinyo/233262/availabilityv2?start_date=2024-09-01&end_date=2024-09-30&commercial_acct=false
+### Data Visualization
 
-This is the what we're looking for! Brilliant! Only problem is that the entry points are listed using some sort of key instead of the actual name. Knowing 2 of 22 permits remain is useless unless I can figure out what the entry point is.
+![Example dashboard image](example-dashboard.png)
 
-2. https://www.recreation.gov/api/permitcontent/233262
+### Data Architecture
 
-This second endpoint appears to contain all the metadata (and mapping) for a given area. 233262 appears in both, it's just some sort of permit_id value that represents Inyo National Forest. Combing through all the Inyo Metadata, I see that ['payload']['campsites'] looks to provide the mapping from entry point names to entry points. We're on a roll now!
+![Flowchart](docs/flowchart.png)
 
+If you decide to include this, you should also talk a bit about why you chose the architecture and tools you did for this project.
 
+## Prerequisites
+
+Directions or anything needed before running the project.
+
+- Prerequisite 1
+- Prerequisite 2
+- Prerequisite 3
+
+## How to Run This Project
+
+Replace the example step-by-step instructions with your own.
+
+1. Install x packages
+2. Run command: `python x`
+3. Make sure it's running properly by checking z
+4. To clean up at the end, run script: `python cleanup.py`
+
+## Lessons Learned
+
+It's good to reflect on what you learned throughout the process of building this project. Here you might discuss what you would have done differently if you had more time/money/data. Did you end up choosing the right tools or would you try something else next time?
+
+## Contact
+
+Please feel free to contact me if you have any questions at: LinkedIn, Twitter
