@@ -13,6 +13,7 @@ INSERT_SNAPSHOT = '''
     VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s, %s);
 '''
 
+# change to fct_availability_snapshots
 SELECT_LATEST_SNAPSHOTS = '''
     SELECT
         entry_id,
@@ -32,6 +33,7 @@ SELECT_LATEST_SNAPSHOTS = '''
         );
 '''
 
+# change to dim_entry_points
 REPLACE_ENTRY_POINTS = '''
     REPLACE INTO entry_points (
         entry_code,
