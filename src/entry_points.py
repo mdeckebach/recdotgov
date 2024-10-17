@@ -1,13 +1,15 @@
 from datetime import datetime
-import pymysql
-import requests
-import time
-
-import config as CONFIG
-import sql as SQL
-from setup_logger import setup_logger
+from time import sleep
 
 from dotenv import dotenv_values
+import pymysql
+import requests
+
+from setup_logger import setup_logger
+import sql
+
+
+logger = setup_logger(__name__)
 
 # Get environmental variables for db connection
 env = dotenv_values('.env')
@@ -15,15 +17,15 @@ HOST = env['HOST']
 USER = env['USER']
 PASSWORD = env['PASSWORD']
 DATABASE = env['DATABASE']
-
-
-logger = setup_logger(__name__)
+MAX_RETRIES = int(env['MAX_RETRIES'])
+RETRY_DELAY = int(env['RETRY_DELAY'])
+HEADERS = {'User-Agent': env['USER_AGENT']}
 
 def extract(permit_id):
     url = f'https://www.recreation.gov/api/permitcontent/{permit_id}'
     
-    for attempt in range(1, CONFIG.MAX_RETRIES + 1):
-        response = requests.get(url, headers=CONFIG.HEADERS)
+    for attempt in range(1, MAX_RETRIES + 1):
+        response = requests.get(url, headers=HEADERS)
 
         if response.status_code == 200:
             data = response.json()
@@ -31,8 +33,8 @@ def extract(permit_id):
             return data
         else:
             logger.warning('Payload failed with status code: %s (Attempt %s)', response.status_code, attempt)
-            if attempt < CONFIG.MAX_RETRIES:
-                time.sleep(CONFIG.RETRY_DELAY)
+            if attempt < MAX_RETRIES:
+                sleep(RETRY_DELAY)
             else:
                 raise Exception('Max retries reached. Failed to extract data.')
 
@@ -52,19 +54,19 @@ def transform(data):
 
 def load(data):
     '''Updates DB with latest metadata for each entry_point'''
-    for attempt in range(1, CONFIG.MAX_RETRIES + 1):
+    for attempt in range(1, MAX_RETRIES + 1):
         try:
             connection = pymysql.connect(host=HOST, user=USER, password=PASSWORD, database=DATABASE)
             cursor = connection.cursor()
             logger.info('DB connection established (Attempt %s)', attempt)
-            cursor.executemany(SQL.REPLACE_ENTRY_POINTS, data)
+            cursor.executemany(sql.REPLACE_ENTRY_POINTS, data)
             connection.commit()
             connection.close()
             return len(data)
         except Exception as e:
-            if attempt < CONFIG.MAX_RETRIES:
+            if attempt < MAX_RETRIES:
                 logger.warning('Load failed with error: %s (Attempt %s)', e, attempt)
-                time.sleep(CONFIG.RETRY_DELAY)
+                sleep(RETRY_DELAY)
             else:
                 raise Exception('Max retries reached. Failed to load data to database.')
 

@@ -1,12 +1,16 @@
 from datetime import date
+
+from dotenv import dotenv_values
+
 import entry_points
 import snapshots
 
 
-# Globals
-INYO_ID = '233262'
-TODAY = date.today()
-
 if __name__ == '__main__':
-    entry_points.run_pipeline(INYO_ID)
-    snapshots.run_pipeline(INYO_ID, TODAY)
+    # Get environmental variables for db connection
+    env = dotenv_values('.env')
+    PERMIT_ID = env['PERMIT_ID']
+    today = date.today()
+
+    entry_points.run_pipeline(PERMIT_ID)
+    snapshots.run_pipeline(PERMIT_ID, today)
