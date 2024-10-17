@@ -1,6 +1,6 @@
 from datetime import date
-import src.entry_points as entry_points
-import src.snapshots as snapshots
+import entry_points
+import snapshots
 
 
 # Globals

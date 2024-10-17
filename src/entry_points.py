@@ -3,8 +3,9 @@ import pymysql
 import requests
 import time
 
-import src.config as CONFIG
-import src.sql as SQL
+import config as CONFIG
+import sql as SQL
+from setup_logger import setup_logger
 
 from dotenv import dotenv_values
 
@@ -16,7 +17,7 @@ PASSWORD = env['PASSWORD']
 DATABASE = env['DATABASE']
 
 
-logger = CONFIG.setup_logger(__name__)
+logger = setup_logger(__name__)
 
 def extract(permit_id):
     url = f'https://www.recreation.gov/api/permitcontent/{permit_id}'
