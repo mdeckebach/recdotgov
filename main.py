@@ -4,10 +4,9 @@ import src.snapshots as snapshots
 
 
 # Globals
-inyo_id = '233262'
-today = date.today()
-num_months = 7 #permits only exist 6 months in advance, so looking out 7 months covers all records
+INYO_ID = '233262'
+TODAY = date.today()
 
 if __name__ == '__main__':
-    entry_points.run_pipeline(inyo_id)
-    snapshots.run_pipeline(inyo_id, today, num_months)
+    entry_points.run_pipeline(INYO_ID)
+    snapshots.run_pipeline(INYO_ID, TODAY)

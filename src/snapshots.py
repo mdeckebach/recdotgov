@@ -7,14 +7,14 @@ import time
 import src.config as CONFIG
 import src.sql as SQL
 
-import os
-from dotenv import load_dotenv
-load_dotenv()
+from dotenv import dotenv_values
 
-HOST = os.getenv('HOST')
-USER = os.getenv('USER')
-PASSWORD = os.getenv('PASSWORD')
-DATABASE = os.getenv('DATABASE')
+# Get environmental variables for db connection
+env = dotenv_values('.env')
+HOST = env['HOST']
+USER = env['USER']
+PASSWORD = env['PASSWORD']
+DATABASE = env['DATABASE']
 
 
 logger = CONFIG.setup_logger(__name__)
@@ -103,7 +103,7 @@ def load(data):
                 raise Exception('Max retries reached. Failed to load data to database.')
 
 
-def run_pipeline(permit_id, date, num_months):
+def run_pipeline(permit_id, date, num_months=7):
     try:
         raw_data = extract(permit_id, date, num_months)
         transformed_data = transform(raw_data)

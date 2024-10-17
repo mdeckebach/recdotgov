@@ -6,14 +6,14 @@ import time
 import src.config as CONFIG
 import src.sql as SQL
 
-import os
-from dotenv import load_dotenv
-load_dotenv()
+from dotenv import dotenv_values
 
-HOST = os.getenv('HOST')
-USER = os.getenv('USER')
-PASSWORD = os.getenv('PASSWORD')
-DATABASE = os.getenv('DATABASE')
+# Get environmental variables for db connection
+env = dotenv_values('.env')
+HOST = env['HOST']
+USER = env['USER']
+PASSWORD = env['PASSWORD']
+DATABASE = env['DATABASE']
 
 
 logger = CONFIG.setup_logger(__name__)
