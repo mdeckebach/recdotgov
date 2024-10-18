@@ -29,14 +29,14 @@ def extract(permit_id):
 
         if response.status_code == 200:
             data = response.json()
-            logger.info('Payload received (Attempt %s)', attempt)
+            logger.info('Payload received (%s - Attempt %s)', permit_id, attempt)
             return data
         else:
-            logger.warning('Payload failed with status code: %s (Attempt %s)', response.status_code, attempt)
+            logger.warning('Payload failed with status code: %s (%s - Attempt %s)', response.status_code, permit_id, attempt)
             if attempt < MAX_RETRIES:
                 sleep(RETRY_DELAY)
             else:
-                raise Exception('Max retries reached. Failed to extract data.')
+                raise Exception('Max retries reached. Failed to extract data for %s.', permit_id)
 
 def transform(data):
     '''Converts nested dictionary into list of tuples for easier database upserting'''
@@ -76,6 +76,6 @@ def run_pipeline(permit_id):
         raw_data = extract(permit_id)
         transformed_data = transform(raw_data)
         rows_affected = load(transformed_data)
-        logger.info('ENTRY_POINTS pipeline complete. %s rows upserted', rows_affected)
+        logger.info('ENTRY_POINTS pipeline for %s complete. %s rows upserted', permit_id, rows_affected)
     except Exception as e:
         logger.error('Terminal Error: %s', e)

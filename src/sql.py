@@ -53,9 +53,9 @@ SELECT_LATEST_SNAPSHOTS = '''
 CREATE_DIM_ENTRY_POINTS_IF_NOT_EXISTS = '''
     CREATE TABLE IF NOT EXISTS dim_entry_points (
         entry_id varchar(50) NOT NULL,
-        permit_id varchar(50) DEFAULT NULL,
+        permit_id varchar(50) NOT NULL,
         entry_code varchar(50) DEFAULT NULL,
-        name varchar(50) DEFAULT NULL,
+        name varchar(100) DEFAULT NULL,
         description mediumtext DEFAULT NULL,
         district varchar(50) DEFAULT NULL,
         latitude decimal(20,6) DEFAULT NULL,
@@ -63,11 +63,10 @@ CREATE_DIM_ENTRY_POINTS_IF_NOT_EXISTS = '''
         version varchar(50) DEFAULT NULL,
         modified_ts timestamp NULL DEFAULT NULL,
         _updated_ts timestamp NOT NULL DEFAULT current_timestamp() ON UPDATE current_timestamp(),
-        PRIMARY KEY (entry_id)
+        PRIMARY KEY (entry_id, permit_id)
     );
 '''
 
-# change to dim_entry_points
 REPLACE_ENTRY_POINTS = '''
     REPLACE INTO dim_entry_points (
         entry_code,

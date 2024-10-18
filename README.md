@@ -92,7 +92,7 @@ Directions or anything needed before running the project.
 ```
 pip install -r requirements.txt
 ```
-4. Run the program:
+5. Run the program:
 ```
 python src\main.py
 ``` 

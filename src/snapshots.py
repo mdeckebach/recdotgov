@@ -43,14 +43,14 @@ def get_payload(permit_id, start_date, end_date, commercial_acct='false'):
 
         if response.status_code == 200:
             data = response.json()
-            logger.info('Payload %s - %s received (Attempt %s)', start_date, end_date, attempt)
+            logger.info('Payload %s - %s received (%s - Attempt %s)', start_date, end_date, permit_id, attempt)
             return data
         else:
-            logger.warning('Payload %s - %s failed with status code: %s (Attempt %s)', start_date, end_date, response.status_code, attempt)
+            logger.warning('Payload %s - %s failed with status code: %s (%s - Attempt %s)', start_date, end_date, response.status_code, permit_id, attempt)
             if attempt < MAX_RETRIES:
                 sleep(RETRY_DELAY)
             else:
-                raise Exception('Max retries reached. Failed to extract data.')
+                raise Exception('Max retries reached. Failed to extract data for %s.', permit_id)
 
 def transform(data):
     '''Converts nested dictionaries into list of tuples for easier database upserting'''
@@ -111,6 +111,6 @@ def run_pipeline(permit_id, date, num_months=7):
         raw_data = extract(permit_id, date, num_months)
         transformed_data = transform(raw_data)
         rows_affected = load(transformed_data)
-        logger.info('SNAPSHOTS pipeline complete. %s rows inserted', rows_affected)
+        logger.info('SNAPSHOTS pipeline complete for %s. %s rows inserted', permit_id, rows_affected)
     except Exception as e:
         logger.error('Terminal Error: %s', e)
