@@ -22,11 +22,16 @@ Specific goals include:
 
 ![Flowchart](docs/flowchart.png)
 
-If you decide to include this, you should also talk a bit about why you chose the architecture and tools you did for this project.
+### Tools
+- `reacreation.gov` - this is the source system for my pipeline. 
+
+- `Synology NAS` - I have a home server that I primarily use for photo and file storage, so I decided to use it for this project as a data platform and scheduler. I didn't want to pay for storage or deal with any cloud providers, so setting up a MariaDB instance on Synology, which has a built in platform was fairly trivial and straightforward. Additionally, Synology has a convenient scheduler so I decided I could use that rather than additional technologies like Airflow or Mage.
 
 ### Entity Relationship Diagram
 
 TODO: create an ERD showing the 2 end tables and their fields
+
+explain why you did ETL instead of ELT (storage considerations)
 
 ## Prerequisites
 
