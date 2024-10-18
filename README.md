@@ -74,6 +74,26 @@ Directions or anything needed before running the project.
 
 ## How to Run This Project
 
+### A. To run from the Command Line
+#### Requirements
+- Python 3+ (I used 3.12.5 in development)
+- A database and user with read/write permissions. I used [MariaDB](https://mariadb.org/). You can follow [these instructions](https://www.youtube.com/watch?v=4bLr3fuZO4Q) to setup on a Synology NAS, or just install and setup a user locally on your machine. You will need the following information about your database:
+    i. `host` (could be your local host if using a DB setup locally)
+    ii. `database` (the name of the database)
+    iii. `user`
+    iv. `password`
+
+#### Instructions
+1. Download this repository to your local machine.
+![Download from Github](docs/download.png)
+2. Unzip the file and navigate to the location of the unzipped project.
+3. Copy `.env.example` to `.env` (or just change the file name so that it is `.env`). Fill out the following variables: `host`, `user`, `password`, `database`.
+4. Install all requirements by running `pip install -r requirements.txt`
+4. Run `src\main.py`. If setup correctly, you should see logging write to the terminal like so:
+![Command Line Example](docs/cli_example.png)
+
+### B. To run using Docker
+
 Replace the example step-by-step instructions with your own.
 
 1. Install x packages
