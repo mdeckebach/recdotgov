@@ -59,6 +59,7 @@ def load(data):
             connection = pymysql.connect(host=HOST, user=USER, password=PASSWORD, database=DATABASE)
             cursor = connection.cursor()
             logger.info('DB connection established (Attempt %s)', attempt)
+            cursor.execute(sql.CREATE_DIM_ENTRY_POINTS_IF_NOT_EXISTS)
             cursor.executemany(sql.REPLACE_ENTRY_POINTS, data)
             connection.commit()
             connection.close()

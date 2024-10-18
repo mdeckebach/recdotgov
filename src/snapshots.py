@@ -80,6 +80,7 @@ def load(data):
             logger.info('DB connection established (Attempt %s)', attempt)
 
             # Get latest snapshot in DB for each permit_id + entry_id + reservation_ds
+            cursor.execute(sql.CREATE_FCT_AVAILABILITY_SNAPSHOTS_IF_NOT_EXISTS)
             cursor.execute(sql.SELECT_LATEST_SNAPSHOTS)
             latest_snapshots = cursor.fetchall()
             latest_set = set(latest_snapshots) # For more efficient lookup
