@@ -52,12 +52,10 @@ My home server is providing all the compute, storage, and scheduling for this pr
 I didn't want to pay for storage or compute, so using Synology's built-in services was an easy way to accomplish my goals with minimum complexity.
 
 ### Entity Relationship Diagram
-
+Here is what the output looks like in your database:
 ![Entity Relationship Diagram](docs/erd.png)
 
 `fct_availability_snapshots` only contains change data instead of full snapshots. This was a design decision I made to save on storage. Tracking just Inyo National Forest, which contains 67 permitted entry points, every 15 minutes would result in ~500M rows/year:
-
-67 entry points x 215 permit days/run x 365 days/year x 24 hrs/day x 4 runs/hr = ~500M rows
 
 Given that the *vast* majority of those records would just be redundant/identical, some napkin math shows that just recording changes from previous run would be:
 
@@ -114,7 +112,7 @@ If setup correctly, you should see logging in the terminal like so:
 ![Command Line Example](docs/cli_example.png)
 
 ### Option B: Run using Docker
-3. Install [Docker Desktop](https://www.docker.com/) and make sure Docker is running on your machine.
+3. Install [Docker Desktop](https://www.docker.com/) if you have not already.
 4. Download this repository to your local machine.
 ![Download from Github](docs/download.png)
 5. Unzip the file and navigate to the location of the unzipped project.
@@ -129,15 +127,14 @@ docker image build -t recdotgov
 docker run --env-file .\.env recdotgov
 ```
 
-Note: if you want to export the Docker image so that you can run it on another machine (like a Synology NAS), use the following command:
+Note: if you want to export the Docker image so that you can run it on another machine (like a Synology NAS), you can use the following command:
 ```
 docker save recdotgov:latest -o recdotgov.tar
 ```
-This will create a .tar file in the project folder. All you need to do is import that tar file where you want to run the Docker image. You will also need to copy over your .env file so that the container can reference the environmental variables.
+This will create a file called `recdotgov.tar` in the project folder. All you need to do is import that tar file where you want to run the Docker image. You will also need to copy over your `.env` file so that the container can reference the environmental variables.
 
 ## Lessons Learned
-
-It's good to reflect on what you learned throughout the process of building this project. Here you might discuss what you would have done differently if you had more time/money/data. Did you end up choosing the right tools or would you try something else next time?
+TO BE ISSUED
 
 ## Contact
 [Please feel free to email me if you have any questions](mailto:michael.deckebach@gmail.com)
