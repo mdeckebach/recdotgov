@@ -64,31 +64,46 @@ Given that the *vast* majority of those records would just be redundant/identica
 
 Obviously, this assumes an average of 20 changes per entry point + date, but it drops data storage by orders of magnitude.
 
-## Prerequisites
+## Requirements
+1. A local database - To run this project, you will need a database to write the data to. I used [MariaDB](https://mariadb.org/). You can follow [these instructions](https://www.youtube.com/watch?v=4bLr3fuZO4Q) to setup on a Synology NAS, or just install and setup a user locally on your machine.
 
-Directions or anything needed before running the project.
+2. Read/write user - You will need a user with read/write permissions provisioned for the database you set up in Requirement #1. Again, [these instructions](https://www.youtube.com/watch?v=4bLr3fuZO4Q) include everthing you need to set up a user in MariaDB. In short here are the terminal commands:
 
-- Prerequisite 1
-- Prerequisite 2
-- Prerequisite 3
+    a. Enter the MariaDB monitor from the command line (you'll need to enter the password you set when you set up MariaDB in the first place in Step 1):
+    ```
+    mysql -u root -p
+    ```
+
+    b. Navigate to the `mysql` database where user permissions live:
+    ```
+    use mysql;
+    ```
+
+    c. Create a user:
+    ```
+    create user '<user>'@'<host>' identified by '<password>';
+    ```
+    Note that you should replace `<user>`, `<host>`, and `<password>` with actual values. These same values will end up in your .env file (see below).
+
+    d. Permission the user:
+    ```
+    grant all priviliges on *.* to '<user>'@'<host>';
+    ```
+
+You should now have a user with credentials that can be used to write to your database!
 
 ## How to Run This Project
 
 ### A. To run from the Command Line
-#### Requirements
+#### Additional Requirements
 - Python 3+ (I used 3.12.5 in development)
-- A database and user with read/write permissions. I used [MariaDB](https://mariadb.org/). You can follow [these instructions](https://www.youtube.com/watch?v=4bLr3fuZO4Q) to setup on a Synology NAS, or just install and setup a user locally on your machine. You will need the following information about your database:
-    - `host` (could be your local host if using a DB setup locally)
-    - `database` (the name of the database)
-    - `user`
-    - `password`
 
 #### Instructions
 1. Download this repository to your local machine.
 ![Download from Github](docs/download.png)
 2. Unzip the file and navigate to the location of the unzipped project.
-3. Copy `.env.example` to `.env` (or just change the file name so that it is `.env`). Fill out the following variables with your info: `host`, `user`, `password`, `database`.
-4. Install all requirements by running:
+3. Copy `.env.example` to `.env` (or just change the file name so that it is `.env`). Fill out the following variables with your info: `host`, `user`, `password`, `database` set in the Requirements section above.
+4. Install all required packages by running:
 ```
 pip install -r requirements.txt
 ```
@@ -96,22 +111,37 @@ pip install -r requirements.txt
 ```
 python src\main.py
 ``` 
-If setup correctly, you should see logging write to the terminal like so:
+If setup correctly, you should see logging in the terminal like so:
 ![Command Line Example](docs/cli_example.png)
 
 ### B. To run using Docker
+#### Additional Requirements
+- [Docker Desktop](https://www.docker.com/) installed
 
-Replace the example step-by-step instructions with your own.
+#### Instructions
+1. Download this repository to your local machine.
+![Download from Github](docs/download.png)
+2. Unzip the file and navigate to the location of the unzipped project.
+3. Copy `.env.example` to `.env` (or just change the file name so that it is `.env`). Fill out the following variables with your info: `host`, `user`, `password`, `database` set in the Requirements section above.
+4. Boot up Docker / make sure Docker is running locally
+5. Build a Docker image:
+```
+docker image build -t recdotgov
+```
+6. Run the Docker image:
+```
+docker run --env-file .\.env recdotgov
+```
 
-1. Install x packages
-2. Run command: `python x`
-3. Make sure it's running properly by checking z
-4. To clean up at the end, run script: `python cleanup.py`
+Note: if you want to export the Docker image so that you can run it on another machine (like a Synology NAS), use the following command:
+```
+docker save recdotgov:latest -o recdotgov.tar
+```
+This will create a .tar file in the project folder. All you need to do is import that tar file where you want to run the Docker image. You will also need to copy over your .env file so that the container can reference the environmental variables.
 
 ## Lessons Learned
 
 It's good to reflect on what you learned throughout the process of building this project. Here you might discuss what you would have done differently if you had more time/money/data. Did you end up choosing the right tools or would you try something else next time?
 
 ## Contact
-
-Please feel free to contact me if you have any questions at: LinkedIn, Twitter
+[Please feel free to email me if you have any questions](mailto:michael.deckebach@gmail.com)
