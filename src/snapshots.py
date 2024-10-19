@@ -1,8 +1,9 @@
 from datetime import datetime
 from time import sleep
+import os
 
 from dateutil.relativedelta import relativedelta
-from dotenv import dotenv_values
+from dotenv import load_dotenv
 import pymysql
 import requests
 
@@ -13,14 +14,14 @@ import sql
 logger = setup_logger(__name__)
 
 # Get environmental variables
-env = dotenv_values('.env')
-HOST = env['HOST']
-USER = env['USER']
-PASSWORD = env['PASSWORD']
-DATABASE = env['DATABASE']
-MAX_RETRIES = int(env['MAX_RETRIES'])
-RETRY_DELAY = int(env['RETRY_DELAY'])
-HEADERS = {'User-Agent': env['USER_AGENT']}
+load_dotenv() # Comment this line out if running via Docker
+HOST = os.getenv('HOST')
+USER = os.getenv('USER')
+PASSWORD = os.getenv('PASSWORD')
+DATABASE = os.getenv('DATABASE')
+MAX_RETRIES = int(os.getenv('MAX_RETRIES'))
+RETRY_DELAY = int(os.getenv('RETRY_DELAY'))
+HEADERS = {'User-Agent': os.getenv('USER_AGENT')}
 
 def extract(permit_id, start_date, num_months, commercial_acct='false'):
     raw_data = {'snapshot_ts': datetime.now(), 'permit_id': permit_id, 'payloads': {}}

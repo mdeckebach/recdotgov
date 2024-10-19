@@ -1,16 +1,16 @@
 from datetime import date
 from ast import literal_eval
+import os
 
-from dotenv import dotenv_values
+from dotenv import load_dotenv
+load_dotenv() # Comment this line out if running via Docker
 
 import entry_points
 import snapshots
 
 
 if __name__ == '__main__':
-    # Get environmental variables for db connection
-    env = dotenv_values('.env')
-    PERMIT_IDS = literal_eval(env['PERMIT_IDS'])
+    PERMIT_IDS = literal_eval(os.getenv('PERMIT_IDS'))
     today = date.today()
 
     for permit_id in PERMIT_IDS:
