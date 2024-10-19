@@ -3,7 +3,7 @@ from ast import literal_eval
 import os
 
 from dotenv import load_dotenv
-load_dotenv() # Comment this line out if running via Docker
+load_dotenv()
 
 import entry_points
 import snapshots

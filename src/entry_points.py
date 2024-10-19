@@ -13,7 +13,7 @@ import sql
 logger = setup_logger(__name__)
 
 # Get environmental variables
-load_dotenv() # Comment this line out if running via Docker
+load_dotenv()
 HOST = os.getenv('HOST')
 USER = os.getenv('USER')
 PASSWORD = os.getenv('PASSWORD')

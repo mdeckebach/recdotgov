@@ -78,7 +78,7 @@ Directions or anything needed before running the project.
 #### Requirements
 - Python 3+ (I used 3.12.5 in development)
 - A database and user with read/write permissions. I used [MariaDB](https://mariadb.org/). You can follow [these instructions](https://www.youtube.com/watch?v=4bLr3fuZO4Q) to setup on a Synology NAS, or just install and setup a user locally on your machine. You will need the following information about your database:
-    -`host` (could be your local host if using a DB setup locally)
+    - `host` (could be your local host if using a DB setup locally)
     - `database` (the name of the database)
     - `user`
     - `password`
