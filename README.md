@@ -21,8 +21,8 @@ In the process, I hoped to learn:
 - `src/sql.py` - Contains SQL queries used by `src/entry_points.py` and `src/snapshots.py`, stored as strings.
 - `.env` - Contains global variables, including database configuration details. See below for details on how to edit this to run the project on your own machine. **You will need to create this file for the script to run**. An example structure is laid out in `.env.example`.
 - `requirements.txt` - Contains a list of all packages that need to be installed for the script to work (i.e., dependencies)
-- `\docs\` - A space to store documentation files, like flowchart and ERD images
-- `\logs\` - A space for the log files that the script generates
+- `docs/` - A space to store documentation files, like flowchart and ERD images
+- `logs/` - A space for the log files that the script generates
 
 ## Pipeline Architecture
 
@@ -31,22 +31,23 @@ In the process, I hoped to learn:
 ### Source Data: Recreation.gov
 I started by looking for a public API and found [RIDB API](https://ridb.recreation.gov/docs), which was super promising. However, the `/reservations` endpoint appears to no longer function, so I hit a dead end.
 
-Then, I did a bit of poking around the Inyo Backcountry Permit webpage using developer tools, wondering if maybe I would find any calls that might contain the necessary data. Somehow, availability is getting to the webpage! I got the idea from [this article](https://emery-44439.medium.com/how-find-openings-in-rec-gov-campsites-using-dart-and-aws-lambda-9bfe3fe29369), which was doing something similar with campsite avilability.
+Then, I did a bit of poking around the Inyo Backcountry Permit webpage using developer tools, wondering if maybe I would find anything that might contain the necessary data. Somehow, availability is getting to the webpage! I got the idea from [this article](https://emery-44439.medium.com/how-find-openings-in-rec-gov-campsites-using-dart-and-aws-lambda-9bfe3fe29369), which was doing something similar with campsite avilability.
 
-Inspecting [the webpage](https://www.recreation.gov/permits/233262), I combed through the network traffic and found two promising API calls:
+Inspecting [the webpage](https://www.recreation.gov/permits/233262), I combed through network traffic and found two promising API calls:
 
-1. https://www.recreation.gov/api/permitinyo/233262/availabilityv2?start_date=2024-09-01&end_date=2024-09-30&commercial_acct=false - Bingo! This is the what we're looking for! Only problem is that the entry points are listed using some sort of key instead of their actual name. I'd need something else to map between these entry point ids and a human-readable name.
+1. https://www.recreation.gov/api/permitinyo/233262/availabilityv2?start_date=2024-09-01&end_date=2024-09-30&commercial_acct=false - Bingo! This is the what we're looking for! Only problem is that the entry points are listed using some sort of key instead of their actual name. I'd need something else to map between these entry point ids and a human-readable name. `233262` is the just the id for Inyo National Forest, so I assume other ids can be fed into this format and get results.
 
-2. https://www.recreation.gov/api/permitcontent/233262 - This second endpoint appears to contain all the metadata for a given area. The `233262` in the URL is the id for Inyo National Forest. Combing through the data, I see that ['payload']['divisions'] contains the mapping I need to get from entry point ids to names!
+2. https://www.recreation.gov/api/permitcontent/233262 - This second endpoint appears to contain all the metadata for a given area. Combing through the data, I see that ['payload']['divisions'] contains the mapping I need to get from entry point ids to names!
 
 While neither of these API endpoints are publicly documented as far as I can tell, I can use them to get the data I need in a programmatic way.
 
 ### Synology NAS
 My home server is providing all the compute, storage, and scheduling for this project. Synology makes things super easy with built in packages. I used:
 
-- `Docker` - For containerization of my script and all dependencies
-- `MariaDB` - For data storage. I won't include instructions for doing this here, but [this video](https://www.youtube.com/watch?v=4bLr3fuZO4Q) was super helpful.
-- `Synology Task Scheduler` - For scheduling the script to run every 15 minutes
+- `Container Manager` - Synology's equivalent of Docker Desktop, allowing to run a containerization of my script with all dependencies
+- `MariaDB` - For data storage. I won't include instructions for setting the database up, but [this video](https://www.youtube.com/watch?v=4bLr3fuZO4Q) was super helpful.
+- `Synology Task Scheduler` - For scheduling the script to run every 15 minutes. Synology limits the scheduling of user-defined scripts to be 1x/hr, so I just set up 4 different automations offset by 15 minutes:
+![Task Scheduler](docs/task_scheduler.png)
 
 I didn't want to pay for storage or compute, so using Synology's built-in services was an easy way to accomplish my goals with minimum complexity.
 
@@ -54,7 +55,7 @@ I didn't want to pay for storage or compute, so using Synology's built-in servic
 
 ![Entity Relationship Diagram](docs/erd.png)
 
-`fct_availability_snapshots` only containing change data instead of full snapshots was a design decision I made to save on storage. To start, I am tracking just Inyo National Forest, which contains 67 permitted entry points. I also plan to run my script every 15 minutes. Thus, 1 year's worth of script-running with full snapshots each run would be:
+`fct_availability_snapshots` only contains change data instead of full snapshots. This was a design decision I made to save on storage. Tracking just Inyo National Forest, which contains 67 permitted entry points, every 15 minutes would result in ~500M rows/year:
 
 67 entry points x 215 permit days/run x 365 days/year x 24 hrs/day x 4 runs/hr = ~500M rows
 
@@ -62,12 +63,15 @@ Given that the *vast* majority of those records would just be redundant/identica
 
 67 entry points x 365 days/yr x 20 changes per entry-point-date = ~500K rows
 
-Obviously, this assumes an average of 20 changes per entry point + date, but it drops data storage by orders of magnitude.
+Obviously, this assumes an average of 20 changes per entry point + date, but it drops data storage by orders of magnitude, hence my decision to only capture changes.
 
-## Requirements
-1. A local database - To run this project, you will need a database to write the data to. I used [MariaDB](https://mariadb.org/). You can follow [these instructions](https://www.youtube.com/watch?v=4bLr3fuZO4Q) to setup on a Synology NAS, or just install and setup a user locally on your machine.
+## How to Run This Project
+You can run this project either via the command line or via a Docker image. The following sections explain both.
 
-2. Read/write user - You will need a user with read/write permissions provisioned for the database you set up in Requirement #1. Again, [these instructions](https://www.youtube.com/watch?v=4bLr3fuZO4Q) include everthing you need to set up a user in MariaDB. In short here are the terminal commands:
+### Prerequisites
+1. A database - To run this project, you will need a database to load the data to. I used [MariaDB](https://mariadb.org/). You can follow [these instructions](https://www.youtube.com/watch?v=4bLr3fuZO4Q) to setup on a Synology NAS, or just install locally on your machine.
+
+2. A DB user - You will need a user with read/write permissions provisioned for the database you set up in Step 1. Again, [these instructions](https://www.youtube.com/watch?v=4bLr3fuZO4Q) include everthing you need to set up a user in MariaDB. In short here are the terminal commands:
 
     a. Enter the MariaDB monitor from the command line (you'll need to enter the password you set when you set up MariaDB in the first place in Step 1):
     ```
@@ -83,52 +87,44 @@ Obviously, this assumes an average of 20 changes per entry point + date, but it 
     ```
     create user '<user>'@'<host>' identified by '<password>';
     ```
-    Note that you should replace `<user>`, `<host>`, and `<password>` with actual values. These same values will end up in your .env file (see below).
+    Note that you should replace `<user>`, `<host>`, and `<password>` with actual values. These same values will end up in your .env file (explained below).
 
-    d. Permission the user:
+    d. Finally, permission the user:
     ```
     grant all priviliges on *.* to '<user>'@'<host>';
     ```
 
 You should now have a user with credentials that can be used to write to your database!
 
-## How to Run This Project
-
-### A. To run from the Command Line
-#### Additional Requirements
-- Python 3+ (I used 3.12.5 in development)
-
-#### Instructions
-1. Download this repository to your local machine.
+### Option A: Run from the Command Line
+3. Make sure you have Python 3+ installed (I used 3.12.5 in development)
+4. Download this repository to your local machine.
 ![Download from Github](docs/download.png)
-2. Unzip the file and navigate to the location of the unzipped project.
-3. Copy `.env.example` to `.env` (or just change the file name so that it is `.env`). Fill out the following variables with your info: `host`, `user`, `password`, `database` set in the Requirements section above.
-4. Install all required packages by running:
+5. Unzip the file and navigate to the location of the unzipped project.
+6. Copy `.env.example` to `.env` (or just change the file name so that it is `.env`). Fill out the following variables with your info: `host`, `user`, `password`, `database` set in the Requirements section above.
+7. Install all required packages by running:
 ```
 pip install -r requirements.txt
 ```
-5. Run the program:
+8. Run the program:
 ```
 python src\main.py
 ``` 
 If setup correctly, you should see logging in the terminal like so:
 ![Command Line Example](docs/cli_example.png)
 
-### B. To run using Docker
-#### Additional Requirements
-- [Docker Desktop](https://www.docker.com/) installed
-
-#### Instructions
-1. Download this repository to your local machine.
+### Option B: Run using Docker
+3. Install [Docker Desktop](https://www.docker.com/) and make sure Docker is running on your machine.
+4. Download this repository to your local machine.
 ![Download from Github](docs/download.png)
-2. Unzip the file and navigate to the location of the unzipped project.
-3. Copy `.env.example` to `.env` (or just change the file name so that it is `.env`). Fill out the following variables with your info: `host`, `user`, `password`, `database` set in the Requirements section above.
-4. Boot up Docker / make sure Docker is running locally
-5. Build a Docker image:
+5. Unzip the file and navigate to the location of the unzipped project.
+6. Copy `.env.example` to `.env` (or just change the file name so that it is `.env`). Fill out the following variables with your info: `host`, `user`, `password`, `database` set in the Requirements section above.
+7. Boot up Docker / make sure Docker is running locally
+8. Build a Docker image:
 ```
 docker image build -t recdotgov
 ```
-6. Run the Docker image:
+9. Run the Docker image:
 ```
 docker run --env-file .\.env recdotgov
 ```
