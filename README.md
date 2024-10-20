@@ -134,7 +134,7 @@ docker save recdotgov:latest -o recdotgov.tar
 This will create a file called `recdotgov.tar` in the project folder. All you need to do is import that tar file where you want to run the Docker image. You will also need to copy over your `.env` file so that the container can reference the environmental variables.
 
 ## Lessons Learned
-TO BE ISSUED
+[See my blog post here](https://www.michaeldeckebach.com/writing/recdotgov/)
 
 ## Contact
 [Please feel free to email me if you have any questions](mailto:michael.deckebach@gmail.com)
